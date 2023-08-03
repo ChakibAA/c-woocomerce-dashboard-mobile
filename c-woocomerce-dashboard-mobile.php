@@ -159,7 +159,9 @@ function getOrdersAPI(WP_REST_Request $request)
             $line_items = $order->get_items();
             $products = array();
             foreach ($line_items as $line_item) {
+
                 $product_id = $line_item->get_product_id();
+                $variation_id = $line_item->get_variation_id();
                 $product = wc_get_product($product_id);
 
                 if ($product) {
@@ -169,6 +171,28 @@ function getOrdersAPI(WP_REST_Request $request)
                         'price' => $product->get_price(),
                         'quantity' => $line_item->get_quantity(),
                     );
+                    if ($variation_id) {
+
+                        $variation = wc_get_product($variation_id);
+
+                        $product_data = array(
+                            'id' => $product_id,
+                            'name' => $product->get_name(),
+                            'price' => $product->get_price(),
+                            'quantity' => $line_item->get_quantity(),
+                            'variation_id' => $variation_id,
+                            'variation_attributes' => $variation->get_variation_attributes()
+
+                        );
+                    } else {
+                        $product_data = array(
+                            'id' => $product_id,
+                            'name' => $product->get_name(),
+                            'price' => $product->get_price(),
+                            'quantity' => $line_item->get_quantity(),
+                        );
+                    }
+
 
                     $products[] = $product_data;
                 }
