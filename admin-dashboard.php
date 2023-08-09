@@ -1,5 +1,17 @@
 <?php
 
+
+function generate_and_save_token()
+{
+    $generated_key = wp_generate_password(32, false);
+
+    update_option('token', $generated_key);
+}
+
+
+register_activation_hook(__FILE__, 'generate_and_save_token');
+
+
 function plugin_add_dashboard_page()
 {
     add_menu_page(
@@ -18,15 +30,19 @@ add_action('admin_menu', 'plugin_add_dashboard_page');
 
 function plugin_render_dashboard()
 {
+    $token = get_option('token');
+    echo $token;
     ?>
     <div class="wrap">
         <h1>C Woocomerce Dashboard Mobile</h1>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <input type="hidden" name="action" value="save_token">
             <?php wp_nonce_field('your-plugin-save-token'); ?>
-            <label for="token">Enter Token:</label>
-            <input type="text" name="token" id="token" value="<?php echo esc_attr(get_option('plugin_token')); ?>">
-            <?php submit_button('Save Token'); ?>
+            <label for="token">
+                Token
+            </label>
+            <input disabled type="text" name="token" id="token" value="<?php echo $token ?>">
+
         </form>
     </div>
     <?php
